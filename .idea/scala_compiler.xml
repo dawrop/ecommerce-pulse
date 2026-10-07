@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ScalaCompilerConfiguration">
+    <option name="separateProdTestSources" value="true" />
+    <profile name="sbt 1" modules="ecommerce-pulse,ecommerce-pulse.commerce-pulse-generator,ecommerce-pulse.commerce-pulse-generator.main,ecommerce-pulse.commerce-pulse-generator.test,ecommerce-pulse.commerce-pulse-spark-streaming,ecommerce-pulse.commerce-pulse-spark-streaming.main,ecommerce-pulse.commerce-pulse-spark-streaming.test,ecommerce-pulse.ecommerce-pulse-generator,ecommerce-pulse.ecommerce-pulse-generator.main,ecommerce-pulse.ecommerce-pulse-generator.test,ecommerce-pulse.ecommerce-pulse-spark-streaming,ecommerce-pulse.ecommerce-pulse-spark-streaming.main,ecommerce-pulse.ecommerce-pulse-spark-streaming.test,ecommerce-pulse.main,ecommerce-pulse.sparkStreaming,ecommerce-pulse.sparkStreaming.main,ecommerce-pulse.sparkStreaming.test,ecommerce-pulse.test" />
+  </component>
+</project>
