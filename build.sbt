@@ -2,6 +2,9 @@ ThisBuild / scalaVersion := "2.13.18"
 
 ThisBuild / version := "0.1.0"
 
+run / fork := true
+run / connectInput := true
+
 lazy val root = (project in file("."))
   .aggregate(
     generator,

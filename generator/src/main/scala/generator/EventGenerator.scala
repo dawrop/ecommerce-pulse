@@ -4,10 +4,12 @@ import generator.Utils._
 import model._
 
 import java.time.Instant
+import java.util.UUID
 
 sealed trait EventGenerator {
   def generate(session: SessionState): Event
-  protected def eventId: String =
+
+  protected def eventId: UUID =
     randomUUID()
   protected def eventTime: Instant =
     Instant.now()

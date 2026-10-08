@@ -1,57 +1,59 @@
 package model
 
+import model.EventType._
 import java.time.Instant
+import java.util.UUID
 
 sealed trait Event {
-  def eventType: String
-  def eventId: String
+  def eventId: UUID
+  def eventType: EventType
   def eventTime: Instant
 }
 
 case class AddToCartEvent(
-    eventId: String,
+    eventId: UUID,
     eventTime: Instant,
     productId: String,
     quantity: Int
 ) extends Event {
 
-  override def eventType: String = "add_to_cart"
+  override def eventType: EventType = AddToCart
 }
 
 case class ProductViewEvent(
-    eventId: String,
+    eventId: UUID,
     eventTime: Instant,
     productId: String
 ) extends Event {
 
-  override def eventType: String = "product_view"
+  override def eventType: EventType = ProductView
 }
 
 case class PurchaseEvent(
-    eventId: String,
+    eventId: UUID,
     eventTime: Instant,
     items: List[PurchaseItem],
     totalPrice: BigDecimal
 ) extends Event {
 
-  override def eventType: String = "purchase"
+  override def eventType: EventType = Purchase
 }
 
 case class RemoveFromCartEvent(
-    eventId: String,
+    eventId: UUID,
     eventTime: Instant,
     productId: String,
     quantity: Int
 ) extends Event {
 
-  override def eventType: String = "remove_from_cart"
+  override def eventType: EventType = RemoveFromCart
 }
 
 case class SearchEvent(
-    eventId: String,
+    eventId: UUID,
     eventTime: Instant,
     query: String
 ) extends Event {
 
-  override def eventType: String = "search"
+  override def eventType: EventType = Search
 }

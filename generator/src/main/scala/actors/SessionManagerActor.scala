@@ -1,9 +1,8 @@
 package actors
 
-import io.circe.syntax.EncoderOps
+import kafka.KafkaEventProducer
 import model.{EventEnvelope, SessionState}
 import org.apache.pekko.actor.Actor
-import serialization.JsonFormats._
 import uitils.{EventSelector, SessionStateUpdater}
 
 import scala.concurrent.duration.DurationInt
@@ -13,7 +12,8 @@ case object GenerateEvent
 class SessionActor(
     initialState: SessionState,
     eventSelector: EventSelector,
-    stateUpdater: SessionStateUpdater
+    stateUpdater: SessionStateUpdater,
+    kafkaEventProducer: KafkaEventProducer
 ) extends Actor {
 
   override def preStart(): Unit = self ! GenerateEvent
@@ -32,8 +32,7 @@ class SessionActor(
 
     val newState = stateUpdater.update(state, event)
 
-    val json = eventEnvelope.asJson.spaces2
-    println(json)
+    kafkaEventProducer.publish(eventEnvelope)
 
     context.system.scheduler.scheduleOnce(
       1.second,

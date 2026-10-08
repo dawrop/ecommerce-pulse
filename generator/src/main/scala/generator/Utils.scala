@@ -46,8 +46,8 @@ object Utils {
     "gaming mouse"
   )
 
-  def randomUUID(): String =
-    UUID.randomUUID().toString
+  def randomUUID(): UUID =
+    UUID.randomUUID()
 
   def randomUser(): String =
     randomElement(users)
