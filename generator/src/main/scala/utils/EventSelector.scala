@@ -1,4 +1,4 @@
-package uitils
+package utils
 
 import generator.{EventGenerator, Utils}
 import model.SessionState

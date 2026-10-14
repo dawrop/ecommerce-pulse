@@ -1,0 +1,11 @@
+.git/
+.gitignore
+
+.idea/
+.bsp/
+.bloop/
+*.iml
+*.ipr
+*.iws
+
+*.log
