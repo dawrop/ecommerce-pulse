@@ -1,3 +1,7 @@
+import sbtassembly.AssemblyPlugin.autoImport.*
+import sbtassembly.MergeStrategy
+import sbtassembly.PathList
+
 ThisBuild / scalaVersion := "2.13.18"
 
 ThisBuild / version := "0.1.0"
@@ -18,6 +22,13 @@ lazy val root = (project in file("."))
 lazy val generator = (project in file("generator"))
   .settings(
     name := "ecommerce-pulse-generator",
+    assembly / mainClass := Some("GeneratorApp"),
+    assembly / assemblyMergeStrategy := {
+      case "reference.conf" => MergeStrategy.concat
+      case "version.conf"   => MergeStrategy.first
+      case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+      case x => MergeStrategy.first
+    },
     libraryDependencies ++= Seq(
       "org.apache.kafka" % "kafka-clients" % "4.3.1",
       "com.typesafe" % "config" % "1.4.9",

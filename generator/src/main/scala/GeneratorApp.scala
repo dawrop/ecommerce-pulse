@@ -2,11 +2,10 @@ import actors.SessionActor
 import generator._
 import kafka.{JsonEventSerializer, KafkaEventProducer}
 import org.apache.pekko.actor.{ActorSystem, Props}
-import uitils.{DefaultSessionStateUpdater, RandomEventSelector}
+import utils.{DefaultSessionStateUpdater, RandomEventSelector}
 
 import scala.concurrent.Await
-import scala.concurrent.duration.DurationInt
-import scala.io.StdIn
+import scala.concurrent.duration.Duration
 
 object GeneratorApp {
   def main(args: Array[String]): Unit = {
@@ -41,11 +40,7 @@ object GeneratorApp {
       "session-actor"
     )
 
-    println("Pekko App is running. Press ENTER to stop...")
-    StdIn.readLine()
-    println("Shutting down Pekko System gracefully...")
-    system.terminate()
-    Await.result(system.whenTerminated, 10.seconds)
-    println("Pekko App stopped. Returning to sbt.")
+    println("Pekko App is running.")
+    Await.result(system.whenTerminated, Duration.Inf)
   }
 }

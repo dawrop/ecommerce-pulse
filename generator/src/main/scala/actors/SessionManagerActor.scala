@@ -3,7 +3,7 @@ package actors
 import kafka.KafkaEventProducer
 import model.{EventEnvelope, SessionState}
 import org.apache.pekko.actor.Actor
-import uitils.{EventSelector, SessionStateUpdater}
+import utils.{EventSelector, SessionStateUpdater}
 
 import scala.concurrent.duration.DurationInt
 
