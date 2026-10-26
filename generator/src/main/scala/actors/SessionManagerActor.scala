@@ -1,45 +1,44 @@
 package actors
 
+import generator.{SessionGenerator, UserGenerator}
 import kafka.KafkaEventProducer
-import model.{EventEnvelope, SessionState}
-import org.apache.pekko.actor.Actor
+import org.apache.pekko.actor.{Actor, ActorLogging, Props, Terminated}
 import utils.{EventSelector, SessionStateUpdater}
 
-import scala.concurrent.duration.DurationInt
-
-case object GenerateEvent
-
-class SessionActor(
-    initialState: SessionState,
+class SessionManagerActor(
+    targetActiveSessions: Int,
+    userGenerator: UserGenerator,
+    sessionGenerator: SessionGenerator,
     eventSelector: EventSelector,
     stateUpdater: SessionStateUpdater,
-    kafkaEventProducer: KafkaEventProducer
-) extends Actor {
+    kafkaProducer: KafkaEventProducer[_]
+) extends Actor
+    with ActorLogging {
 
-  override def preStart(): Unit = self ! GenerateEvent
+  override def preStart(): Unit = {
+    log.info(
+      s"Starting SessionManager with target concurrency: $targetActiveSessions"
+    )
+    for (_ <- 1 to targetActiveSessions) {
+      spawnNewSession()
+    }
+  }
 
-  override def receive: Receive = running(initialState)
+  override def receive: Receive = { case Terminated(actorRef) =>
+    log.debug(s"Session actor $actorRef terminated. Spawning a new one.")
+    context.unwatch(actorRef)
+    spawnNewSession()
+  }
 
-  private def running(state: SessionState): Receive = { case GenerateEvent =>
-    val generator     = eventSelector.select(state)
-    val event         = generator.generate(state)
-    val eventEnvelope =
-      EventEnvelope(
-        userId = state.user.userId,
-        sessionId = state.sessionId,
-        event = event
+  private def spawnNewSession(): Unit = {
+    val user         = userGenerator.generate()
+    val session      = sessionGenerator.generate(user)
+    val sessionActor = context.actorOf(
+      Props(
+        new SessionActor(session, eventSelector, stateUpdater, kafkaProducer)
       )
+    )
 
-    val newState = stateUpdater.update(state, event)
-
-    kafkaEventProducer.publish(eventEnvelope)
-
-    context.system.scheduler.scheduleOnce(
-      1.second,
-      self,
-      GenerateEvent
-    )(context.dispatcher)
-
-    context.become(running(newState))
+    context.watch(sessionActor)
   }
 }

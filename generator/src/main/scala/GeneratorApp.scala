@@ -1,11 +1,12 @@
-import actors.SessionActor
+import actors.{SessionActor, SessionManagerActor}
 import generator._
-import kafka.{JsonEventSerializer, KafkaEventProducer}
+import kafka.{KafkaEventProducer, StringEventSerializer}
+import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.pekko.actor.{ActorSystem, Props}
 import utils.{DefaultSessionStateUpdater, RandomEventSelector}
 
 import scala.concurrent.Await
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.{Duration, DurationInt}
 
 object GeneratorApp {
   def main(args: Array[String]): Unit = {
@@ -14,10 +15,7 @@ object GeneratorApp {
 
     val userGenerator    = new UserGeneratorImpl
     val sessionGenerator = new SessionGeneratorImpl
-
-    val user           = userGenerator.generate()
-    val session        = sessionGenerator.generate(user)
-    val productCatalog = new ProductCatalogGenerator().generate()
+    val productCatalog   = new ProductCatalogGenerator().generate()
 
     val eventSelector = new RandomEventSelector(
       new AddToCartEventGenerator,
@@ -27,18 +25,38 @@ object GeneratorApp {
       new SearchEventGenerator
     )
 
-    val stateUpdater =
-      new DefaultSessionStateUpdater
+    val stateUpdater = new DefaultSessionStateUpdater
 
+    val kafkaTopic =
+      Utils.generatorConfig.getConfig("kafka").getString("events-topic")
     val kafkaProducer =
-      new KafkaEventProducer(serializer = new JsonEventSerializer)
+      new KafkaEventProducer[String](
+        system = system,
+        serializer = new StringEventSerializer(),
+        kafkaSerializer = new StringSerializer,
+        topic = kafkaTopic
+      )
 
     system.actorOf(
       Props(
-        new SessionActor(session, eventSelector, stateUpdater, kafkaProducer)
+        new SessionManagerActor(
+          targetActiveSessions = 15,
+          userGenerator,
+          sessionGenerator,
+          eventSelector,
+          stateUpdater,
+          kafkaProducer
+        )
       ),
-      "session-actor"
+      "session-manager-actor"
     )
+
+    sys.addShutdownHook {
+      println("Closing the application. Flushing the Kafka buffer.")
+      val closed = kafkaProducer.close()
+      Await.result(closed, 10.seconds)
+      println("Kafka producer closed successfully.")
+    }
 
     println("Pekko App is running.")
     Await.result(system.whenTerminated, Duration.Inf)

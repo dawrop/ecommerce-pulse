@@ -7,7 +7,7 @@ import scala.math.BigDecimal.RoundingMode
 import scala.util.Random
 
 object Utils {
-  private val generatorConfig: Config =
+  val generatorConfig: Config =
     ConfigFactory.load().getConfig("generator")
 
   private val seed =

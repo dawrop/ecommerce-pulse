@@ -5,12 +5,23 @@ import io.circe.syntax.EncoderOps
 import model.EventEnvelope
 import serialization.JsonFormats._
 
-trait EventSerializer {
-  def serialize(event: EventEnvelope): Json
+import java.nio.charset.StandardCharsets
+
+trait EventSerializer[T] {
+  def serialize(event: EventEnvelope): T
 }
 
-class JsonEventSerializer extends EventSerializer {
-  override def serialize(event: EventEnvelope): Json = {
+class JsonEventSerializer extends EventSerializer[Json] {
+  override def serialize(event: EventEnvelope): Json =
     event.asJson
-  }
+}
+
+class StringEventSerializer extends EventSerializer[String] {
+  override def serialize(event: EventEnvelope): String =
+    event.asJson.noSpaces
+}
+
+class ByteArrayEventSerializer extends EventSerializer[Array[Byte]] {
+  override def serialize(event: EventEnvelope): Array[Byte] =
+    event.asJson.noSpaces.getBytes(StandardCharsets.UTF_8)
 }
