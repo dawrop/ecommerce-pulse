@@ -1,9 +1,12 @@
-import actors.{SessionActor, SessionManagerActor}
+import actors.SessionManagerActor
 import generator._
 import kafka.{KafkaEventProducer, StringEventSerializer}
 import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.pekko.actor.{ActorSystem, Props}
-import utils.{DefaultSessionStateUpdater, RandomEventSelector}
+import utils.{
+  AdvancedDynamicEventSelector,
+  DefaultSessionStateUpdater,
+}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.{Duration, DurationInt}
@@ -17,7 +20,7 @@ object GeneratorApp {
     val sessionGenerator = new SessionGeneratorImpl
     val productCatalog   = new ProductCatalogGenerator().generate()
 
-    val eventSelector = new RandomEventSelector(
+    val eventSelector = new AdvancedDynamicEventSelector(
       new AddToCartEventGenerator,
       new ProductViewEventGenerator,
       new PurchaseEventGenerator(productCatalog),

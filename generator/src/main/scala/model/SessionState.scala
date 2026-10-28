@@ -5,5 +5,6 @@ case class SessionState(
     user: User,
     viewedProducts: Set[String] = Set.empty,
     cart: Map[String, Int] = Map.empty,
-    lastSearch: Option[String] = None
+    lastSearch: Option[String] = None,
+    lastEvent: Option[EventType] = None
 )
